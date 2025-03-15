@@ -24,16 +24,18 @@ The extension consists of two main parts:
 - Go 1.23+ (for running the server component)
 - Rust must be installed via rustup
 
-### Setup
+## Setup
 
-1. Build and install the server component:
-   ```
-   cd server
-   go install ./cmd/github-gas-server
-   ```
-2. Add the compiled server binary to your PATH, if the binary is not already in your PATH.
+### Installation
 
-## Configuration
+The Zed extension isn't currently available on the Zed Marketplace. You install it from source.
+
+Make sure Go and Rust (from rustup) are installed before proceeding.
+
+1. Clone the repository: `git clone https://github.com/rubiojr/gas`
+2. Install the extension from `Extensions -> Install Dev Extension`.
+
+### Configuration
 
 The extension can be configured in your Zed project settings:
 
