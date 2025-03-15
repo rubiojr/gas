@@ -41,14 +41,16 @@ The extension can be configured in your Zed project settings:
 {
   "gas": {
     "author": "rubiojr",                             // Required: GitHub username
-    "repositories": ["owner/repo1", "owner/repo2"],  // Optional: specific repositories to track
-    "query_extra": "is:open",                        // Optional: additional GitHub search filters
-    "from_date": "1 week ago"                        // Optional: time range to fetch activity from
+    "repositories": ["owner/repo1", "owner/repo2"],  // Optional: specific repositories to include (defaults to all)
+    "query_extra": "is:open",                        // Optional: additional GitHub search query filters (defaults to none)
+    "from_date": "1 week ago"                        // Optional: time range to fetch activity from (defaults to 7 days ago)
   }
 }
 ```
 
 If no options are provided, the extension will fetch activity from all repositories you have access to, since last week (7 days ago).
+
+`query_extra` is appended to the default GitHub [search query](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests).
 
 ## Usage
 
