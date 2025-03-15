@@ -103,7 +103,7 @@ When installed, the extension adds a "/gas" prompt to Zed. Triggering this promp
 ## Authentication
 
 The Go component uses GitHub authentication from:
-1. A token file at `~/.config/github-gas-server/token`
+1. A token file at `~/.config/github-gas-server/token` (simply drop the token then, no specific format required)
 2. GitHub CLI token (`gh auth token`)
 
 In that particular order.
