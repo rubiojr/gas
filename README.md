@@ -41,10 +41,10 @@ The extension can be configured in your Zed project settings:
 "context_servers": {
   "gas": {
     "settings": {
-      "author": "rubiojr",                             // Required: GitHub username
-      "repositories": ["owner/repo1", "owner/repo2"],  // Optional: specific repositories to include (defaults to all)
-      "query_extra": "is:open",                        // Optional: additional GitHub search query filters (defaults to none)
-      "from_date": "1 week ago"                        // Optional: time range to fetch activity from (defaults to 7 days ago)
+      "author": "rubiojr",                                // Required: GitHub username
+      "repositories": [],                                 // Optional: specific repositories to include (defaults to all)
+      "query_extra": "",                                  // Optional: additional GitHub search query filters (defaults to none)
+      "from_date": "1 week ago"                           // Optional: time range to fetch activity from (defaults to 7 days ago)
     }
   }
 }
@@ -52,7 +52,7 @@ The extension can be configured in your Zed project settings:
 
 If no options are provided, the extension will fetch activity from all repositories you have access to, since last week (7 days ago).
 
-`query_extra` is appended to the default GitHub [search query](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests).
+`repositories` is a list of `owner/repo` to include in the search query.
 
 The `github-gas-server` binary is downloaded automatically from the GitHub repository. If you want to specify a custom path, you can do so by setting the `path` option in the `command` section:
 
