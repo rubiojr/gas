@@ -6,7 +6,7 @@ This repository contains a Zed extension called "GitHub Activity Summarizer" (GA
 
 The extension connects to GitHub's API to fetch your recent activity (comments, issue interactions, and pull request participation) and presents it in a formatted summary. This allows you to quickly catch up on your GitHub activity without leaving your editor.
 
-![screencast](/docs/screencast1.mp4)
+https://github.com/user-attachments/assets/0856b1a8-8dbc-4453-ae51-ef40bf25fbca
 
 ## Components
 
