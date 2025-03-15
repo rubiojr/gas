@@ -1,6 +1,6 @@
 id = "github-activity-summarizer"
 name = "GitHub Activity Summarizer"
-version = "0.0.1"
+version = "0.2.0"
 schema_version = 1
 authors = ["Sergio Rubio rubiojr@rbel.co"]
 description = "Summarizes your GitHub activity over a period of time"
