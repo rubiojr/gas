@@ -4,7 +4,7 @@ This repository contains a Zed extension called "GitHub Activity Summarizer" (GA
 
 ## Overview
 
-The extension connects to GitHub's API to fetch your recent activity (comments, issue interactions, and pull request participation) and presents it in a formatted summary. This allows you to quickly catch up on your GitHub activity without leaving your editor.
+The extension is a [Zed context server](https://zed.dev/docs/extensions/context-servers) that connects to GitHub's API to fetch your recent activity (comments, issue interactions, and pull request participation) and presents it in a formatted summary. This allows you to quickly catch up on your GitHub activity without leaving your editor.
 
 https://github.com/user-attachments/assets/0856b1a8-8dbc-4453-ae51-ef40bf25fbca
 
@@ -103,6 +103,7 @@ When installed, the extension adds a "/gas" prompt to Zed. Triggering this promp
 ## Authentication
 
 The Go component uses GitHub authentication from:
+
 1. A token file at `~/.config/github-gas-server/token` (simply drop the token then, no specific format required)
 2. GitHub CLI token (`gh auth token`)
 
