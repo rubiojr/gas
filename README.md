@@ -38,6 +38,7 @@ The extension can be configured in your Zed project settings:
 ```json
 {
   "gas": {
+    "author": "rubiojr",                             // Required: GitHub username
     "repositories": ["owner/repo1", "owner/repo2"],  // Optional: specific repositories to track
     "query_extra": "is:open",                        // Optional: additional GitHub search filters
     "from_date": "1 week ago"                        // Optional: time range to fetch activity from

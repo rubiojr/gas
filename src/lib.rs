@@ -8,6 +8,7 @@ struct GitHubActivitySummarizerServerSettings {
     repositories: Option<Vec<String>>,
     query_extra: Option<String>,
     from_date: Option<String>,
+    author: String,
 }
 
 impl zed::Extension for GitHubActivitySummarizerCS {
@@ -40,6 +41,8 @@ impl zed::Extension for GitHubActivitySummarizerCS {
         if let Some(from_date) = settings.from_date{
             env_vars.push(("GITHUB_GAS_FROM_DATE".into(), from_date));
         }
+
+        env_vars.push(("GITHUB_GAS_AUTHOR".into(), settings.author));
 
         Ok(Command {
             command: "github-gas-server".to_string(),

@@ -19,6 +19,7 @@ type Summarizer struct {
 	searchQuery string
 	ctx         context.Context
 	queryExtra  string
+	author      string
 }
 
 type Comment struct {
@@ -37,6 +38,12 @@ type Comment struct {
 }
 
 type Option func(*Summarizer)
+
+func WithAuthor(author string) Option {
+	return func(s *Summarizer) {
+		s.author = author
+	}
+}
 
 func WithClient(client *github.Client) Option {
 	return func(s *Summarizer) {
@@ -156,6 +163,14 @@ func (s *Summarizer) GetRecentParticipationComments() ([]Comment, error) {
 
 				// Process comments
 				for _, comment := range comments {
+					if *comment.User.Login != s.author {
+						continue
+					}
+
+					if comment.CreatedAt.Before(s.since) {
+						continue
+					}
+
 					allComments = append(allComments, Comment{
 						IssueNumber: *issue.Number,
 						IssueTitle:  *issue.Title,

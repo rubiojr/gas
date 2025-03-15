@@ -78,6 +78,11 @@ func New() (*MCPServer, error) {
 		opts = append(opts, summarizer.WithFromDate(fromDate))
 	}
 
+	author := os.Getenv("GITHUB_GAS_AUTHOR")
+	if author != "" {
+		opts = append(opts, summarizer.WithAuthor(author))
+	}
+
 	summ, err := summarizer.NewSummarizer(
 		context.Background(),
 		token,
@@ -135,7 +140,7 @@ func (s *MCPServer) summarizeHandler(ctx context.Context, request mcp.GetPromptR
 	}
 
 	return &mcp.GetPromptResult{
-		Description: "GitHub activity from last week",
+		Description: "GitHub Activity",
 		Messages: []mcp.PromptMessage{
 			{
 				Role: mcp.RoleUser,
