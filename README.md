@@ -68,12 +68,19 @@ The `github-gas-server` binary is downloaded automatically from the GitHub repos
     "settings": {
       "author": "rubiojr",                             // Required: GitHub username
       "repositories": ["owner/repo1", "owner/repo2"],  // Optional: specific repositories to include (defaults to all)
-      "query_extra": "is:open",                        // Optional: additional GitHub search query filters (defaults to none)
+      "query_extra": "-org:github",                    // Optional: additional GitHub search query filters (defaults to none)
       "from_date": "1 week ago"                        // Optional: time range to fetch activity from (defaults to 7 days ago)
     }
   }
 }
 ```
+
+#### query_extra tips
+
+- Use `type:issue` or `type:pr` to exclude issues or pull requests from the search results.
+- Use `-org:github` to exclude prs and issues from the given org (github in this case).
+
+Use any search filter documented at https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests
 
 ## Usage
 
