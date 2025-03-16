@@ -208,6 +208,10 @@ func (s *Summarizer) GetRecentParticipationComments() ([]Comment, error) {
 
 					// Process review comments
 					for _, comment := range reviewComments {
+						if *comment.User.Login != s.author {
+							continue
+						}
+
 						allComments = append(allComments, Comment{
 							IssueNumber: *issue.Number,
 							IssueTitle:  *issue.Title,
