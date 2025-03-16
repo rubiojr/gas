@@ -176,7 +176,7 @@ func (s *Summarizer) GetRecentParticipationComments() ([]Comment, error) {
 						IssueTitle:  *issue.Title,
 						RepoName:    repoName,
 						RepoOwner:   repoOwner,
-						Body:        *comment.Body,
+						Body:        bodyOrEmpty(issue),
 						Author:      *comment.User.Login,
 						CreatedAt:   comment.CreatedAt.Time,
 						UpdatedAt:   comment.UpdatedAt.Time,
@@ -213,7 +213,7 @@ func (s *Summarizer) GetRecentParticipationComments() ([]Comment, error) {
 							IssueTitle:  *issue.Title,
 							RepoName:    repoName,
 							RepoOwner:   repoOwner,
-							Body:        *comment.Body,
+							Body:        bodyOrEmpty(issue),
 							Author:      *comment.User.Login,
 							CreatedAt:   comment.CreatedAt.Time,
 							UpdatedAt:   comment.UpdatedAt.Time,
@@ -239,4 +239,86 @@ func (s *Summarizer) GetRecentParticipationComments() ([]Comment, error) {
 	}
 
 	return allComments, nil
+}
+
+func bodyOrEmpty(issue *github.Issue) string {
+	if issue.Body == nil {
+		return ""
+	}
+	return *issue.Body
+}
+
+func (s *Summarizer) GetOpenedPRs() ([]Comment, error) {
+	user, _, err := s.client.Users.Get(s.ctx, "")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get authenticated user: %v", err)
+	}
+
+	// Create a search query for PRs you opened
+	author := s.author
+	if author == "" {
+		author = *user.Login
+	}
+
+	query := fmt.Sprintf("author:%s type:pr created:>=%s", author, s.since.Format("2006-01-02"))
+
+	// Add specific repos if provided
+	for _, repo := range s.repos {
+		query += fmt.Sprintf(" repo:%s", repo)
+	}
+
+	if s.queryExtra != "" {
+		query += fmt.Sprintf(" %s", s.queryExtra)
+	}
+
+	log.Stderr(fmt.Sprintf("query: %s", query))
+
+	opt := &github.SearchOptions{
+		ListOptions: github.ListOptions{PerPage: 100},
+		Sort:        "created",
+		Order:       "desc",
+	}
+
+	var openedPRs []Comment
+
+	// Search for PRs
+	for {
+		issues, resp, err := s.client.Search.Issues(s.ctx, query, opt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to search PRs: %v", err)
+		}
+
+		// Process each PR
+		for _, issue := range issues.Issues {
+			// Skip if not a PR
+			if issue.PullRequestLinks == nil {
+				continue
+			}
+
+			components := strings.Split(*issue.RepositoryURL, "/")
+			repoName, repoOwner := components[len(components)-1], components[len(components)-2]
+
+			openedPRs = append(openedPRs, Comment{
+				IssueNumber: *issue.Number,
+				IssueTitle:  *issue.Title,
+				RepoName:    repoName,
+				RepoOwner:   repoOwner,
+				Body:        bodyOrEmpty(issue),
+				Author:      author,
+				CreatedAt:   issue.CreatedAt.Time,
+				UpdatedAt:   issue.UpdatedAt.Time,
+				URL:         *issue.HTMLURL,
+				IsPR:        true,
+				IsOpen:      *issue.State == "open",
+				IssueURL:    *issue.HTMLURL,
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+
+	return openedPRs, nil
 }

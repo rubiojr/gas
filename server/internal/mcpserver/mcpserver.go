@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -107,10 +108,27 @@ func (s *MCPServer) ServeStdio() error {
 }
 
 func (s *MCPServer) summarizeHandler(ctx context.Context, request mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
-	comments, err := s.summ.GetRecentParticipationComments()
-	if err != nil {
-		return nil, err
-	}
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	comments := []summarizer.Comment{}
+	go func() {
+		defer wg.Done()
+		c, err := s.summ.GetRecentParticipationComments()
+		if err != nil {
+			return
+		}
+		comments = append(comments, c...)
+	}()
+
+	prs := []summarizer.Comment{}
+	go func() {
+		defer wg.Done()
+		prs, _ = s.summ.GetOpenedPRs()
+	}()
+	wg.Wait()
+
+	comments = append(comments, prs...)
 
 	if len(comments) == 0 {
 		return &mcp.GetPromptResult{
@@ -134,7 +152,7 @@ func (s *MCPServer) summarizeHandler(ctx context.Context, request mcp.GetPromptR
 		buf.WriteString(fmt.Sprintf("Is Pull request?: %t\n", comment.IsPR))
 		buf.WriteString(fmt.Sprintf("Issue Author: %s\n", comment.Author))
 		buf.WriteString(fmt.Sprintf("Comment date: %s\n", comment.CreatedAt))
-		buf.WriteString(fmt.Sprintf("Comment in %s/%s #%d (%s) by %s:\n%s\n\n",
+		buf.WriteString(fmt.Sprintf("Comment in %s/%s #%d (%s) by %s:\nBody:\n%s\n\n",
 			comment.RepoOwner, comment.RepoName, comment.IssueNumber,
 			comment.IssueTitle, comment.Author, comment.Body))
 	}
