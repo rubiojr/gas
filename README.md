@@ -77,7 +77,7 @@ The `github-gas-server` binary is downloaded automatically from the GitHub repos
 
 #### query_extra tips
 
-- Use `type:issue` or `type:pr` to exclude issues or pull requests from the search results.
+- Use `-type:issue` or `-type:pr` to exclude issues or pull requests from the search results.
 - Use `-org:github` to exclude prs and issues from the given org (github in this case).
 
 Use any search filter documented at https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests
