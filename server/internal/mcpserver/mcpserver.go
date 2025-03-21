@@ -14,7 +14,7 @@ import (
 	"github.com/rubiojr/gas/summarizer"
 )
 
-const Version = "1.0.0"
+const Version = "1.1.0"
 const Name = "GitHub Activity Summarizer"
 
 type MCPServer struct {
