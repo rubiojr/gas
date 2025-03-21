@@ -28,7 +28,11 @@ The extension consists of two main parts:
 
 ### Installation
 
-The Zed extension isn't currently available on the Zed Marketplace. You install it from source.
+#### From the marketplace
+
+Install it from the Zed.
+
+#### From source (dev extension)
 
 Make sure Go and Rust (from rustup) are installed before proceeding.
 
