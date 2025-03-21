@@ -43,14 +43,24 @@ The extension can be configured in your Zed project settings:
 "context_servers": {
   "gas": {
     "settings": {
-      "author": "rubiojr",                                // Required: GitHub username
+      "author": "",                                       // Optional: GitHub username, defaults to your username
       "repositories": [],                                 // Optional: specific repositories to include (defaults to all)
       "query_extra": "",                                  // Optional: additional GitHub search query filters (defaults to none)
-      "from_date": "1 week ago"                           // Optional: time range to fetch activity from (defaults to 7 days ago)
+      "from_date": "1 week ago",                           // Optional: time range to fetch activity from (defaults to 7 days ago)
+      "auth_type": "all"                                  // Optional: authentication type (defaults to "all")
     }
   }
 }
 ```
+
+By default, the extension will use the GitHub CLI (`gh`) for authentication. If that's undesired, see the Authentication section for alternatives.
+
+Valid authentication types are:
+
+- `all`: tries all authentication methods described in the Authentication section.
+- `cli`: Use GitHub CLI (`gh`) for authentication.
+- `file`: Read the token from `~/.config/github-gas-server/token`
+- `keyring`: Read the token from the system keyring. (macOS and Linux only)
 
 If no options are provided, the extension will fetch activity from all repositories you have access to, since last week (7 days ago).
 
@@ -104,7 +114,18 @@ When installed, the extension adds a "/gas" prompt to Zed. Triggering this promp
 
 The Go component uses GitHub authentication from:
 
-1. A token file at `~/.config/github-gas-server/token` (simply drop the token then, no specific format required)
-2. GitHub CLI token (`gh auth token`)
+1. OS Keychain (macOS) or GNOME Keyring (Linux)
+2. A token file at `~/.config/github-gas-server/token` (simply drop the token then, no specific format required)
+3. GitHub CLI token (`gh auth token`)
 
 In that particular order.
+
+### Adding the token to the GNOME Keyring
+
+From the command line:
+
+```
+secret-tool store --label="Token for GitHub Activity Summarizer" service github-activity-summarizer
+```
+
+Then paste the token into the prompt.
