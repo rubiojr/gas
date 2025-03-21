@@ -12,7 +12,8 @@ struct GitHubActivitySummarizerServerSettings {
     repositories: Option<Vec<String>>,
     query_extra: Option<String>,
     from_date: Option<String>,
-    author: String,
+    author: Option<String>,
+    auth_type: Option<String>,
 }
 
 impl zed::Extension for GitHubGASExtension {
@@ -48,8 +49,13 @@ impl zed::Extension for GitHubGASExtension {
             env_vars.push(("GITHUB_GAS_FROM_DATE".into(), from_date));
         }
 
-        env_vars.push(("GITHUB_GAS_AUTHOR".into(), settings.author));
+        if let Some(author) = settings.author {
+            env_vars.push(("GITHUB_GAS_AUTHOR".into(), author));
+        }
 
+        if let Some(auth_type) = settings.auth_type {
+            env_vars.push(("GITHUB_GAS_AUTH_TYPE".into(), auth_type));
+        }
 
         let downloaded = self.download()?;
         let current_dir = std::env::current_dir().map_err(|e| e.to_string())?;

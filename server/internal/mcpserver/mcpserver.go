@@ -5,57 +5,32 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 	"sync"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/rubiojr/gas/internal/keyring"
 	"github.com/rubiojr/gas/summarizer"
 )
+
+const Version = "1.0.0"
+const Name = "GitHub Activity Summarizer"
 
 type MCPServer struct {
 	server *server.MCPServer
 	summ   *summarizer.Summarizer
 }
 
-// grab the github token from gh auth token
-func grabTokenFromCLI() string {
-	cmd := exec.Command("gh", "auth", "token")
-	tokenBytes, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	// Trim whitespace, especially the trailing newline
-	return strings.TrimSpace(string(tokenBytes))
-}
-
-// grab the token from a file
-func grabTokenFromFile() string {
-	tokenFile := os.ExpandEnv("${HOME}/.config/github-gas-server/token")
-	tokenBytes, err := os.ReadFile(tokenFile)
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(tokenBytes))
-}
-
-func grabToken() string {
-	token := grabTokenFromFile()
-	if token == "" {
-		token = grabTokenFromCLI()
-	}
-	return token
-}
-
 func New() (*MCPServer, error) {
 	s := server.NewMCPServer(
-		"GitHub Activity Summarizer",
-		"1.0.0",
+		Name,
+		Version,
 		server.WithPromptCapabilities(true),
 	)
 
-	token := grabTokenFromCLI()
+	authType := os.Getenv("GITHUB_GAS_AUTH_TYPE")
+	token := keyring.GitHubToken(keyring.AuthType(authType))
 	if token == "" {
 		return nil, fmt.Errorf("Make sure you have the GitHub CLI configured")
 	}
