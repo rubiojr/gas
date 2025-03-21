@@ -32,7 +32,7 @@ func New() (*MCPServer, error) {
 	authType := os.Getenv("GITHUB_GAS_AUTH_TYPE")
 	token := keyring.GitHubToken(keyring.AuthType(authType))
 	if token == "" {
-		return nil, fmt.Errorf("Make sure you have the GitHub CLI configured")
+		return nil, fmt.Errorf("make sure you have authentication correctly")
 	}
 
 	opts := []summarizer.Option{}
