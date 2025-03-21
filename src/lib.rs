@@ -12,7 +12,8 @@ struct GitHubActivitySummarizerServerSettings {
     repositories: Option<Vec<String>>,
     query_extra: Option<String>,
     from_date: Option<String>,
-    author: String,
+    author: Option<String>,
+    auth_type: Option<String>,
 }
 
 impl zed::Extension for GitHubGASExtension {
@@ -48,8 +49,13 @@ impl zed::Extension for GitHubGASExtension {
             env_vars.push(("GITHUB_GAS_FROM_DATE".into(), from_date));
         }
 
-        env_vars.push(("GITHUB_GAS_AUTHOR".into(), settings.author));
+        if let Some(author) = settings.author {
+            env_vars.push(("GITHUB_GAS_AUTHOR".into(), author));
+        }
 
+        if let Some(auth_type) = settings.auth_type {
+            env_vars.push(("GITHUB_GAS_AUTH_TYPE".into(), auth_type));
+        }
 
         let downloaded = self.download()?;
         let current_dir = std::env::current_dir().map_err(|e| e.to_string())?;
@@ -76,17 +82,6 @@ impl GitHubGASExtension {
     fn download(
         &mut self,
     ) -> Result<GitHubGASServerBinary> {
-        // write something to stderr
-        eprintln!("Downloading binary to {BINARY_NAME}");
-
-        let binary_path = format!("{BINARY_NAME}");
-
-        if fs::metadata(&binary_path).map_or(false, |stat| stat.is_file()) {
-            return Ok(GitHubGASServerBinary {
-                path: binary_path.clone(),
-            });
-        }
-
         let release = zed::latest_github_release(
             "rubiojr/gas",
             GithubReleaseOptions {
@@ -94,6 +89,18 @@ impl GitHubGASExtension {
                 pre_release: false,
             },
         )?;
+
+        let release_version = release.version;
+
+        let version_dir = format!("{BINARY_NAME}-{release_version}");
+        let binary_path = format!("{version_dir}/github-gas-server");
+
+        if fs::metadata(&binary_path).map_or(false, |stat| stat.is_file()) {
+            return Ok(GitHubGASServerBinary {
+                path: binary_path.clone(),
+            });
+        }
+
 
         let (platform, arch) = zed::current_platform();
         let asset_name = format!(
@@ -120,6 +127,9 @@ impl GitHubGASExtension {
             .find(|asset| asset.name == asset_name)
             .ok_or_else(|| format!("no asset found matching {:?}", asset_name))?;
 
+
+        fs::create_dir_all(&version_dir).map_err(|e| format!("failed to create version directory: {e}"))?;
+
         if !fs::metadata(&binary_path).map_or(false, |stat| stat.is_file()) {
             zed::download_file(
                 &asset.download_url,
@@ -137,9 +147,14 @@ impl GitHubGASExtension {
                 fs::read_dir(".").map_err(|e| format!("failed to list working directory {e}"))?;
             for entry in entries {
                 let entry = entry.map_err(|e| format!("failed to load directory entry {e}"))?;
-                if entry.file_name().to_str() != Some(&binary_path) {
+                if entry.file_name().to_str() != Some(&version_dir) {
                     fs::remove_dir_all(&entry.path()).ok();
                 }
+
+                if entry.file_name().to_str() == Some("github-gas-server") {
+                    fs::remove_file(&entry.path()).ok();
+                }
+
             }
         }
 

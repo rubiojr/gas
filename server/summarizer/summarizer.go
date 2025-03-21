@@ -93,25 +93,29 @@ func NewSummarizer(ctx context.Context, token string, opts ...Option) (*Summariz
 	client := github.NewClient(tc)
 
 	oneWeekAgo := time.Now().AddDate(0, 0, -7)
+
 	s := &Summarizer{client: client, since: oneWeekAgo, ctx: ctx}
 	for _, opt := range opts {
 		opt(s)
+	}
+
+	if s.author == "" {
+		// Get authenticated user if not set
+		user, _, err := client.Users.Get(s.ctx, "")
+		if err != nil {
+			return nil, fmt.Errorf("failed to get authenticated user: %v", err)
+		}
+		s.author = *user.Login
 	}
 
 	return s, nil
 }
 
 func (s *Summarizer) GetRecentParticipationComments() ([]Comment, error) {
-	// Get authenticated user
-	user, _, err := s.client.Users.Get(s.ctx, "")
-	if err != nil {
-		return nil, fmt.Errorf("failed to get authenticated user: %v", err)
-	}
-
 	query := s.searchQuery
 	if query == "" {
 		// Create a search query for issues and PRs you participated in
-		query = fmt.Sprintf("involves:%s updated:>=%s", *user.Login, s.since.Format("2006-01-02"))
+		query = fmt.Sprintf("involves:%s updated:>=%s", s.author, s.since.Format("2006-01-02"))
 
 		for _, repo := range s.repos {
 			query += fmt.Sprintf(" repo:%s", repo)
@@ -253,16 +257,7 @@ func bodyOrEmpty(issue *github.Issue) string {
 }
 
 func (s *Summarizer) GetOpenedPRs() ([]Comment, error) {
-	user, _, err := s.client.Users.Get(s.ctx, "")
-	if err != nil {
-		return nil, fmt.Errorf("failed to get authenticated user: %v", err)
-	}
-
-	// Create a search query for PRs you opened
 	author := s.author
-	if author == "" {
-		author = *user.Login
-	}
 
 	query := fmt.Sprintf("author:%s type:pr created:>=%s", author, s.since.Format("2006-01-02"))
 
