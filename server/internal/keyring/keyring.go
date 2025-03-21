@@ -30,7 +30,7 @@ func grabTokenFromFile() string {
 }
 
 func grabTokenFromKeyring() string {
-	token, err := zk.Get("github-activity-summarizer", "")
+	token, err := zk.Get("github-activity-summarizer", "github-activity-summarizer")
 	if err != nil {
 		return ""
 	}

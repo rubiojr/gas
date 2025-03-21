@@ -129,3 +129,11 @@ secret-tool store --label="Token for GitHub Activity Summarizer" service github-
 ```
 
 Then paste the token into the prompt.
+
+### Adding the token to the macOS Keychain
+
+```
+security add-generic-password -a github-activity-summarizer -s github-activity-summarizer -w
+```
+
+Then paste the token into the prompt.
