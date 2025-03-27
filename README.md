@@ -28,9 +28,9 @@ The extension consists of two main parts:
 
 ### Installation
 
-The Zed extension isn't currently available on the Zed Marketplace. You install it from source.
+The Zed extension is available on the Zed Marketplace.
 
-Make sure Go and Rust (from rustup) are installed before proceeding.
+To install it from source, make sure Go and Rust (from rustup) are installed before proceeding.
 
 1. Clone the repository: `git clone https://github.com/rubiojr/gas`
 2. Install the extension from `Extensions -> Install Dev Extension`.
