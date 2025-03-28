@@ -54,6 +54,11 @@ func New() (*MCPServer, error) {
 		opts = append(opts, summarizer.WithFromDate(fromDate))
 	}
 
+	toDate := os.Getenv("GITHUB_GAS_TO_DATE")
+	if toDate != "" {
+		opts = append(opts, summarizer.WithToDate(toDate))
+	}
+
 	author := os.Getenv("GITHUB_GAS_AUTHOR")
 	if author != "" {
 		opts = append(opts, summarizer.WithAuthor(author))
