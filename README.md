@@ -47,6 +47,7 @@ The extension can be configured in your Zed project settings:
       "repositories": [],                                 // Optional: specific repositories to include (defaults to all)
       "query_extra": "",                                  // Optional: additional GitHub search query filters (defaults to none)
       "from_date": "1 week ago",                           // Optional: time range to fetch activity from (defaults to 7 days ago)
+      "to_date": "",                                       // Optional: time range ending at the current date if not set.
       "auth_type": "all"                                  // Optional: authentication type (defaults to "all")
     }
   }
@@ -65,6 +66,12 @@ Valid authentication types are:
 If no options are provided, the extension will fetch activity from all repositories you have access to, since last week (7 days ago).
 
 `repositories` is a list of `owner/repo` to include in the search query.
+
+`from_date` is a string representing the start date of the time range to fetch activity from. It can be a date in the format `YYYY-MM-DD` or a relative date like `1 week ago`.
+
+`to_date` is a string representing the end date of the time range to fetch activity from. It can be a date in the format `YYYY-MM-DD` or a relative date like `1 week ago`.
+
+Note that `to_date` must be after `from_date`, because time warping isn't currently supported.
 
 The `github-gas-server` binary is downloaded automatically from the GitHub repository. If you want to specify a custom path, you can do so by setting the `path` option in the `command` section:
 

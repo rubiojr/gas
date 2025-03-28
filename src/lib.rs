@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::fs;
 use zed::settings::ContextServerSettings;
 use zed_extension_api::{
-    self as zed, serde_json, Command, ContextServerId, GithubReleaseOptions, Project, Result
+    self as zed, serde_json, Command, ContextServerId, GithubReleaseOptions, Project, Result,
 };
 
 const BINARY_NAME: &str = "github-gas-server";
@@ -14,6 +14,7 @@ struct GitHubActivitySummarizerServerSettings {
     from_date: Option<String>,
     author: Option<String>,
     auth_type: Option<String>,
+    to_date: Option<String>,
 }
 
 impl zed::Extension for GitHubGASExtension {
@@ -49,6 +50,10 @@ impl zed::Extension for GitHubGASExtension {
             env_vars.push(("GITHUB_GAS_FROM_DATE".into(), from_date));
         }
 
+        if let Some(to_date) = settings.to_date {
+            env_vars.push(("GITHUB_GAS_TO_DATE".into(), to_date));
+        }
+
         if let Some(author) = settings.author {
             env_vars.push(("GITHUB_GAS_AUTHOR".into(), author));
         }
@@ -79,9 +84,7 @@ struct GitHubGASServerBinary {
 }
 
 impl GitHubGASExtension {
-    fn download(
-        &mut self,
-    ) -> Result<GitHubGASServerBinary> {
+    fn download(&mut self) -> Result<GitHubGASServerBinary> {
         let release = zed::latest_github_release(
             "rubiojr/gas",
             GithubReleaseOptions {
@@ -100,7 +103,6 @@ impl GitHubGASExtension {
                 path: binary_path.clone(),
             });
         }
-
 
         let (platform, arch) = zed::current_platform();
         let asset_name = format!(
@@ -127,8 +129,8 @@ impl GitHubGASExtension {
             .find(|asset| asset.name == asset_name)
             .ok_or_else(|| format!("no asset found matching {:?}", asset_name))?;
 
-
-        fs::create_dir_all(&version_dir).map_err(|e| format!("failed to create version directory: {e}"))?;
+        fs::create_dir_all(&version_dir)
+            .map_err(|e| format!("failed to create version directory: {e}"))?;
 
         if !fs::metadata(&binary_path).map_or(false, |stat| stat.is_file()) {
             zed::download_file(
@@ -154,14 +156,11 @@ impl GitHubGASExtension {
                 if entry.file_name().to_str() == Some("github-gas-server") {
                     fs::remove_file(&entry.path()).ok();
                 }
-
             }
         }
 
         self.cached_binary_path = Some(binary_path.clone());
-        Ok(GitHubGASServerBinary {
-            path: binary_path,
-        })
+        Ok(GitHubGASServerBinary { path: binary_path })
     }
 }
 

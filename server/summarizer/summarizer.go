@@ -15,6 +15,7 @@ import (
 type Summarizer struct {
 	client      *github.Client
 	since       time.Time
+	until       time.Time
 	repos       []string
 	searchQuery string
 	ctx         context.Context
@@ -54,13 +55,31 @@ func WithClient(client *github.Client) Option {
 func WithFromDate(since string) Option {
 	date, err := naturaldate.Parse(since, time.Now())
 	if err != nil {
-		return func(s *Summarizer) {
-			s.since = date
-		}
+		// optimistically try to parse a regular date, since
+		// natural date parsing failed
+		date, _ = time.Parse("2006-01-02", since)
 	}
 
 	return func(s *Summarizer) {
 		s.since = date
+	}
+}
+
+func WithToDate(until string) Option {
+	date, err := naturaldate.Parse(until, time.Now())
+	if err != nil {
+		// optimistically try to parse a regular date, since
+		// natural date parsing failed
+		date, _ = time.Parse("2006-01-02", until)
+	}
+
+	return func(s *Summarizer) {
+		// Invalid date range
+		if date.Before(s.since) {
+			s.until = time.Time{}
+		} else {
+			s.until = date
+		}
 	}
 }
 
@@ -115,7 +134,7 @@ func (s *Summarizer) GetRecentParticipationComments() ([]Comment, error) {
 	query := s.searchQuery
 	if query == "" {
 		// Create a search query for issues and PRs you participated in
-		query = fmt.Sprintf("involves:%s updated:>=%s", s.author, s.since.Format("2006-01-02"))
+		query = fmt.Sprintf("involves:%s updated:%s", s.author, s.dateString())
 
 		for _, repo := range s.repos {
 			query += fmt.Sprintf(" repo:%s", repo)
@@ -256,10 +275,18 @@ func bodyOrEmpty(issue *github.Issue) string {
 	return *issue.Body
 }
 
+func (s *Summarizer) dateString() string {
+	date := fmt.Sprintf(">=%s", s.since.Format("2006-01-02"))
+	if !s.until.IsZero() {
+		date = fmt.Sprintf("%s..%s", s.since.Format("2006-01-02"), s.until.Format("2006-01-02"))
+	}
+	return date
+}
+
 func (s *Summarizer) GetOpenedPRs() ([]Comment, error) {
 	author := s.author
 
-	query := fmt.Sprintf("author:%s type:pr created:>=%s", author, s.since.Format("2006-01-02"))
+	query := fmt.Sprintf("author:%s type:pr created:%s", author, s.dateString())
 
 	// Add specific repos if provided
 	for _, repo := range s.repos {
