@@ -132,7 +132,7 @@ In that particular order.
 From the command line:
 
 ```
-secret-tool store --label="Token for GitHub Activity Summarizer" service github-activity-summarizer
+secret-tool store --label="Token for GitHub Activity Summarizer" service github-activity-summarizer username github-activity-summarizer
 ```
 
 Then paste the token into the prompt.
