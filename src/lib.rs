@@ -1,13 +1,15 @@
+use schemars::JsonSchema;
 use serde::Deserialize;
 use std::fs;
 use zed::settings::ContextServerSettings;
 use zed_extension_api::{
-    self as zed, serde_json, Command, ContextServerId, GithubReleaseOptions, Project, Result,
+    self as zed, serde_json, Command, ContextServerConfiguration, ContextServerId,
+    GithubReleaseOptions, Project, Result,
 };
 
 const BINARY_NAME: &str = "github-gas-server";
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, JsonSchema)]
 struct GitHubActivitySummarizerServerSettings {
     repositories: Option<Vec<String>>,
     query_extra: Option<String>,
@@ -71,6 +73,26 @@ impl zed::Extension for GitHubGASExtension {
             args: vec!["stdio".to_string()],
             env: env_vars,
         })
+    }
+
+    fn context_server_configuration(
+        &mut self,
+        _context_server_id: &ContextServerId,
+        _project: &Project,
+    ) -> Result<Option<ContextServerConfiguration>> {
+        let installation_instructions =
+            include_str!("../configuration/installation_instructions.md").to_string();
+        let default_settings = include_str!("../configuration/default_settings.jsonc").to_string();
+        let settings_schema = serde_json::to_string(&schemars::schema_for!(
+            GitHubActivitySummarizerServerSettings
+        ))
+        .map_err(|e| e.to_string())?;
+
+        Ok(Some(ContextServerConfiguration {
+            installation_instructions,
+            default_settings,
+            settings_schema,
+        }))
     }
 }
 

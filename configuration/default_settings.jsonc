@@ -1,0 +1,14 @@
+{
+  /// GitHub username, defaults to your username (Optional)
+  // "author": "",                                       
+  /// Specific repositories to include (Optional)
+  // "repositories": [],                                 
+  /// Additional GitHub search query filters (Optional)
+  // "query_extra": "",                                  
+  /// Time range to fetch activity from (Optional)
+  // "from_date": "1 week ago",                           
+  /// Time range ending at the current date if not set (Optional)
+  // "to_date": "",                                       
+  /// Authentication type ("all", "cli", "file", "keyring") (Optional)
+  // "auth_type": "all"                                  
+}
